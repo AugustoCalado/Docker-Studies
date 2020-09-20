@@ -57,6 +57,16 @@ Images are stored in a Registry. It can be cloud or On-premises computers. The i
 - TODO - PRINT 9
 - TODO - PRINT 10
 
+## Container Networking
+- `docker port web` -  Shows all the existing port mapping
+
+### Creating a New Networking
+- `docker network create -d <driver: default is 'bridge'> <name>  `
+
+#### Networks  Drivers
+- bridge
+- overlay
+
 ## Docker Commands
 docker ps
 - `docker ps -a` -  Show all the docker images executed, it is like a history
@@ -74,6 +84,11 @@ docker run < image >
 - `docker container ls -a`: Shows the inactive containers
 - `docker container rm $(docker container ls -aq) -f`
 - `docker logs < container >`
+- `docker port web` -  Shows all the existing port mapping
+- `docker service`
+	- `docker service create -d --name <name> --replicas 2 --network <driver> alpine sleep 1`
+	- docker service ls
+	- docker service ps <service name> 
 
 ## Dockerfile - Containerizing an App
 - Instructions for building images
