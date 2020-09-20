@@ -57,7 +57,26 @@ Images are stored in a Registry. It can be cloud or On-premises computers. The i
 - TODO - PRINT 9
 - TODO - PRINT 10
 
+## Docker service
+### Docker `run` vs Docker `service`
+Docker run will start a single container. With docker service you manage a group of containers (from the same image). You can scale them (start multiple containers) or update them.
+
+> docker run is used to create a standalone container
+docker service create is used to create instances (called tasks) of that service running in a cluster (called swarm) of computers (called nodes). 
+
 ## Container Networking
+Inside a Bridged Networking (default networking for docker linux), containers can talk to each other. When there a need of communication between containers in separated bridge networking, it becomes a "hard" operation because each one of these bridges are isolated. However it can be achieved through the usage of overlay.
+
+- TODO - PRINT 15 
+- TODO - PRINT 16
+
+### Overlay Networking
+`docker network create -o encrypted`
+
+- TODO - PRINT 17
+
+- `docker network ls`
+- `docker network inspect bridge`
 - `docker port web` -  Shows all the existing port mapping
 
 ### Creating a New Networking
@@ -65,21 +84,49 @@ Images are stored in a Registry. It can be cloud or On-premises computers. The i
 
 #### Networks  Drivers
 - bridge
-- overlay
+- overlay 
+- overnet
+
+## Working with Volumes and Persistend Data
+Every container when it is created has its own temporary persistence layer (on Linux it is in `/var/lib/docker`) and all the data produced by the container is stored there. When a container is destroyed all of those information is destroyed as well. 
+
+In order to keep the persistence untied of the container lifecycle, volumes come into play. It existe outside the container.
+
+- TODO - PRINT 18
+
+- `docker volume ls`  
+- `docker volume create <name>`
+- `docker volume inspect <name>`
+- `docker volume rm <name>`
+
+- `docker container ..... --mount source=<name-volume>,target=<where-to-mount-that-in-the-container>` : attaching a volume
+
+## Working with Secrets
+ - `docker secret create <name-secret> <path-for-the-secret>`: creating a new secret
+	 - By doing this command a new secret is going to be created and stored in the docker swarm raft
+ - `docker secret ls`
+ - `docker service... --secret <name-secret>` : grant some service access to the secret
+- secret's location on linux -> `/run/secrets`
+
+- TODO - PRINT 18
+
+## Deploying in Production with Stacks and Services
+- TODO - PRINT 19
 
 ## Docker Commands
-docker ps
-- `docker ps -a` -  Show all the docker images executed, it is like a history
-- `docker ps -q` -  Only display numeric IDs (container_id)
-docker images
-docker build -t < imagename >  < context>
+- `docker ps`
+	- `docker ps -a` -  Show all the docker images executed, it is like a history
+	- `docker ps -q` -  Only display numeric IDs (container_id)
+- docker images
+- docker build -t < imagename >  < context>
 	- `docker build -t docker-java .` 
-docker run < image >
+- docker run < image >
 	- `docker run -it < image-name >`
 	- `docker run -it -p host_port:container_port < image-name >`
 	- `docker run -d < image-name >`: run the container in background
 	- `docker run -d < image-name > sleep 1d`
-`docker rm $(docker ps -qa)`: remove all the containers that by the container_id
+	- `docker run -dit < image-name >`
+- `docker rm $(docker ps -qa)`: remove all the containers that by the container_id
 - `docker container stop < two first numbers docker-id >`
 - `docker container ls -a`: Shows the inactive containers
 - `docker container rm $(docker container ls -aq) -f`
@@ -87,7 +134,7 @@ docker run < image >
 - `docker port web` -  Shows all the existing port mapping
 - `docker service`
 	- `docker service create -d --name <name> --replicas 2 --network <driver> alpine sleep 1`
-	- docker service ls
+	- `docker service ls`
 	- docker service ps <service name> 
 
 ## Dockerfile - Containerizing an App
@@ -136,6 +183,7 @@ CMD ["--spring.profiles.active=postgres"]
 - TODO - PRINT 13
 
 ## Containers
+
 ## Copy on Write Concept 
 Everytime a container needs to write a change into an existing file. It makes its own copy of the "original" file and writes the changes inside himself.
 - TODO - PRINT 14
@@ -146,8 +194,7 @@ Everytime a container needs to write a change into an existing file. It makes it
 
 ## Docker Compose
 Defining and running multi-container applications
-con
 
-### Volume Mapping
+
 
 
