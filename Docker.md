@@ -1,4 +1,5 @@
 
+## To Study
 https://github.com/docker/labs/tree/master/beginner
 https://github.com/docker/labs/blob/master/developer-tools/README.md
 	- https://github.com/docker/labs/tree/master/developer-tools/java-debugging
@@ -6,9 +7,62 @@ https://github.com/docker/labs/blob/master/developer-tools/README.md
 
 https://github.com/docker/labs/tree/master/12factor
 
-## 
+## Basic Ideas
 > **Container**
 > noun: Isolated area of an OS with resource usage limits applied
+
+> Docker is a platform for developers and sysadmins to build, ship, and run applications. Docker lets you quickly assemble applications from components and eliminates the friction that can come when shipping code. Docker lets you test and deploy your code into production as fast as possible.
+
+— docs.docker.com/
+
+An application typically requires specific versions for the operating system, application server, JDK, database server, may require  configuration files, and similarly multiple other dependencies. Also, The application may need binding to specific ports and certain amount of memory. The components and configuration together required to run your application is what is referred to as **application operating system**.
+
+
+## Main Components
+Docker has three main components:
+
+1.  _Images_  are the  **build component**  of Docker and are the read-only templates defining an application operating system.
+    
+2.  _Containers_  are the  **run component**  of Docker and created from images. Containers can be run, started, stopped, moved, and deleted.
+    
+3.  Images are stored, shared, and managed in a  _registry_  and are the  **distribution component**  of Docker. DockerHub is a publicly available registry
+
+## Docker Image
+An image is a read only template for creating application containers. Inside of it there is all the code and supporting files to run an application. 
+
+- Images are build-time construct -> Image is a "stopped c ontainer" .
+- Containers are their run time siblings -> Container is a "running image".
+- An image is a bunch of independent layers that are very loosely connected by a manifest files. 
+	- The manifest contains several things and one of them is the layers to be stacked and how to stack them.
+
+- TODO - PRINT 6
+
+Images are stored in a Registry. It can be cloud or On-premises computers. The images can be pull in the hosts by using the `docker image pull` command.
+
+- TODO - PRINT 7
+- TODO - PRINT 8
+
+Docker images are then built from these base images using a simple, descriptive set of steps we call instructions. Each instruction creates a new layer in our image. Instructions include actions like:
+
+1.  Run a command
+    
+2.  Add a file or directory
+    
+3.  Create an environment variable
+    
+4.  Run a process when launching a container    
+
+These instructions are stored in a file called a Dockerfile. Docker reads this Dockerfile when you request a build of an image, executes the instructions, and returns a final image.
+
+### Type of Docker Image's Hashes 
+- Distribution hashes - Pushed Images to the registry have a hash of the compressed data called distribution hash
+- Content Hashes - Uncompressed layers on the house, have as hash the `Content Hash`
+
+- TODO - PRINT 9
+- TODO - PRINT 10
+
+## Docker Container
+A container consists of an operating system, user-added files, and meta-data. Each container is built from an image. That image tells Docker what the container holds, what process to run when the container is launched, and a variety of other configuration data. The Docker image is read-only. When Docker runs a container from an image, it adds a read-write layer on top of the image in which the application can then run.
 
 ## Kernel Internals
 - **Namespaces**: Linux namespaces provide isolation for running processes, limiting their access to system resources without the running process being aware of the limitations. (keep the processes of a container (or the container itself) unawarer of the process of other containers).
@@ -34,28 +88,6 @@ https://github.com/docker/labs/tree/master/12factor
 - TODO - PRINT 5
 
 NICE TO KNOW: Thanks to this architecture, it is possible to shut down / restart the daemon or update it without killing the containers.
-
-## Docker Image
-An image is a read only template for creating application containers. Inside of it is all the code and supporting files to run an application. 
-
-- Images are build-time construct -> Image is a "stopped c ontainer" .
-- Containers are their run time siblings -> Container is a "running image".
-- An image is a bunch of independent layers that are very loosely connected by a manifest files. 
-	- The manifest contains several things and one of them is the layers to be stacked and how to stack them.
-
-- TODO - PRINT 6
-
-Images are stored in a Registry. It can be cloud or On-premises computers. The images can be pull in the hosts by using the `docker image pull` command.
-
-- TODO - PRINT 7
-- TODO - PRINT 8
-
-### Type of Docker Image's Hashes 
-- Distribution hashes - Pushed Images to the registry have a hash of the compressed data called distribution hash
-- Content Hashes - Uncompressed layers on the house, have as hash the `Content Hash`
-
-- TODO - PRINT 9
-- TODO - PRINT 10
 
 ## Docker service
 ### Docker `run` vs Docker `service`
