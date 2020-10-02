@@ -1,0 +1,24 @@
+#surefire
+#Sat Sep 26 18:41:17 BRT 2020
+testSuiteDefinitionTestSourceDirectory=C\:\\Users\\AsusAugusto\\Documents\\Docker-Studies\\Docker-for-Java-Developers\\hellodocker\\hellodocker\\src\\test\\java
+includes1=**/*Test.java
+includes2=**/*TestCase.java
+runOrder=filesystem
+runStatisticsFile=C\:\\Users\\AsusAugusto\\Documents\\Docker-Studies\\Docker-for-Java-Developers\\hellodocker\\hellodocker\\.surefire-659E3252C2CD3590D9A46BB1CCA0F6488EB06A47
+includes0=**/Test*.java
+reportsDirectory=C\:\\Users\\AsusAugusto\\Documents\\Docker-Studies\\Docker-for-Java-Developers\\hellodocker\\hellodocker\\target\\surefire-reports
+tc.0=aug.bueno.AppTest
+surefireClassPathUrl.0=C\:\\Users\\AsusAugusto\\.m2\\repository\\org\\apache\\maven\\surefire\\surefire-junit3\\2.12.4\\surefire-junit3-2.12.4.jar
+classPathUrl.0=C\:\\Users\\AsusAugusto\\Documents\\Docker-Studies\\Docker-for-Java-Developers\\hellodocker\\hellodocker\\target\\test-classes
+providerConfiguration=org.apache.maven.surefire.junit.JUnit3Provider
+classPathUrl.1=C\:\\Users\\AsusAugusto\\Documents\\Docker-Studies\\Docker-for-Java-Developers\\hellodocker\\hellodocker\\target\\classes
+failIfNoTests=false
+classPathUrl.2=C\:\\Users\\AsusAugusto\\.m2\\repository\\junit\\junit\\3.8.1\\junit-3.8.1.jar
+testClassesDirectory=C\:\\Users\\AsusAugusto\\Documents\\Docker-Studies\\Docker-for-Java-Developers\\hellodocker\\hellodocker\\target\\test-classes
+isTrimStackTrace=true
+surefireClassPathUrl.1=C\:\\Users\\AsusAugusto\\.m2\\repository\\org\\apache\\maven\\surefire\\surefire-api\\2.12.4\\surefire-api-2.12.4.jar
+excludes0=**/*$*
+enableAssertions=true
+childDelegation=false
+useManifestOnlyJar=true
+useSystemClassLoader=true
