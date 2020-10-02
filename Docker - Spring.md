@@ -4,19 +4,28 @@ Github search keyword : `id "com.bmuschko.docker-java-application"`
 - Find tutorial CI/CD -> Commit Github repo executes several tests (unit and integration test) and update docker image if everything goes well
 
 ## Tutorials
+- [X] [Dockerizing your Spring Boot applications](https://www.callicoder.com/spring-boot-docker-example/)
+
 - [How to create a custom Docker image with JDK8, Maven and Gradle](https://medium.com/@migueldoctor/how-to-create-a-custom-docker-image-with-jdk8-maven-and-gradle-ddc90f41cee4)
-- [Simple automate build using Docker and Gradle for Java Spring Boot project](https://medium.com/@engleangs/simple-automate-build-using-docker-and-gradle-for-java-spring-boot-project-70d79e65b4e6)
-- [Automating Docker Builds With Gradle](https://tomgregory.com/automating-docker-builds-with-gradle/)
+
+- [Automating Docker Builds With Gradle](https://tomgregory.com/automating-docker-builds-with-gradle/) [NEXT]
+
 - [Simple automate build using Docker and Gradle for Java Spring Boot project](https://medium.com/@engleangs/simple-automate-build-using-docker-and-gradle-for-java-spring-boot-project-70d79e65b4e6)
 
 - [ Docker for Spring boot | Gradle | Java micro service](https://medium.com/@sairamkrish/docker-for-spring-boot-gradle-java-micro-service-done-the-right-way-2f46231dbc06)
 
 - [Spring Boot in a Container](https://github.com/spring-guides/top-spring-boot-docker#a-better-dockerfile)
+
 --- 
+
 - [Spring Boot, Mysql, React docker compose example](https://www.callicoder.com/spring-boot-mysql-react-docker-compose-example/)
+
 - [Building a Spring Boot application in Jenkins (part 1 of microservice devops series)](https://tomgregory.com/building-a-spring-boot-application-in-jenkins/)
+
 - [Building a Spring Boot application in Docker and Jenkins (part 2 of microservice devops series)](https://tomgregory.com/building-a-spring-boot-application-in-docker-and-jenkins/)
+
 - [Dockerizando um ambiente com API’s springboot se comunicando por RabbitMQ](https://medium.com/totvsdevelopers/dockerizando-um-ambiente-com-apis-springboot-se-comunicando-por-rabbitmq-c8368faa6e64)
+
 - [Spring Boot Docker Integration With Rabbitmq and Mysql](https://www.codeprimers.com/spring-boot-docker-integration-with-rabbitmq-and-mysql/)
 
 ## Gradle
