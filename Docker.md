@@ -64,6 +64,10 @@ These instructions are stored in a file called a Dockerfile. Docker reads this D
 ## Docker Container
 A container consists of an operating system, user-added files, and meta-data. Each container is built from an image. That image tells Docker what the container holds, what process to run when the container is launched, and a variety of other configuration data. The Docker image is read-only. When Docker runs a container from an image, it adds a read-write layer on top of the image in which the application can then run.
 
+### Copy on Write Concept 
+Everytime a container needs to write a change into an existing file. It makes its own copy of the "original" file and writes the changes inside himself.
+- TODO - PRINT 14
+
 ## Kernel Internals
 - **Namespaces**: Linux namespaces provide isolation for running processes, limiting their access to system resources without the running process being aware of the limitations. (keep the processes of a container (or the container itself) unawarer of the process of other containers).
 	- TODO - Print 1
@@ -131,7 +135,51 @@ In order to keep the persistence untied of the container lifecycle, volumes come
 - `docker volume inspect <name>`
 - `docker volume rm <name>`
 
-- `docker container ..... --mount source=<name-volume>,target=<where-to-mount-that-in-the-container>` : attaching a volume
+### `mount` vs `-v`
+Both of the commands perform de same task, create/use volumes. Prefer use `mount` rather than `-v`
+
+The biggest difference is that the `-v` syntax combines all the options together in one field, while the `--mount` syntax separates them.
+- **`-v`  or  `--volume`**: Consists of three fields, separated by colon characters (`:`).
+	- first field is the name of the volume
+	- second field is the path where the file or directory are mounted in the container.
+	- third field is optional, and is a comma-separated list of options, such as `ro`(read-only).
+
+- **`--mount`**: Consists of multiple key-value pairs, separated by commas and each consisting of a `<key>=<value>` tuple.
+	- The `type` of the mount, which can be [`bind`](https://docs.docker.com/storage/bind-mounts/), `volume`, or [`tmpfs`](https://docs.docker.com/storage/tmpfs/).
+	- The `source` (or `src`)of the mount. For named volumes, **this is the name of the volume**. For anonymous volumes, this field is omitted.
+	- The `destination` (`dst`, or `target`.)takes as its value the path where the file or directory is mounted in the container.
+-   The  `readonly`  option, if present, causes the bind mount to be  [mounted into the container as read-only](https://docs.docker.com/storage/bind-mounts/#use-a-read-only-bind-mount).
+-   The  `bind-propagation`  option, if present, changes the  [bind propagation](https://docs.docker.com/storage/bind-mounts/#configure-bind-propagation). May be one of  `rprivate`,  `private`,  `rshared`,  `shared`,  `rslave`,  `slave`.
+
+Example: `docker container ..... --mount source=<name-volume>,target=<where-to-mount-that-in-the-container>` : attaching a volume
+
+```
+$ docker run -d \
+  -it \
+  --name devtest \
+  --mount type=bind,source="$(pwd)"/target,target=/app \
+  nginx:latest
+
+```
+`source="$(pwd)"/target` will get the target file in the path (pwd), and start a volume inside it. actually it will be the volume, right?
+
+Use  `docker inspect devtest`  to verify that the bind mount was created correctly. Look for the  `Mounts`  section:
+
+```
+"Mounts": [
+    {
+        "Type": "bind",
+        "Source": "/tmp/source/target",
+        "Destination": "/app",
+        "Mode": "",
+        "RW": true,
+        "Propagation": "rprivate"
+    }
+],
+
+```
+
+This shows that the mount is a  `bind`  mount, it shows the correct source and destination, it shows that the mount is read-write, and that the propagation is set to  `rprivate`.
 
 ## Working with Secrets
  - `docker secret create <name-secret> <path-for-the-secret>`: creating a new secret
@@ -145,30 +193,6 @@ In order to keep the persistence untied of the container lifecycle, volumes come
 ## Deploying in Production with Stacks and Services
 - TODO - PRINT 19
 
-## Docker Commands
-- `docker ps`
-	- `docker ps -a` -  Show all the docker images executed, it is like a history
-	- `docker ps -q` -  Only display numeric IDs (container_id)
-- docker images
-- docker build -t < imagename >  < context>
-	- `docker build -t docker-java .` 
-- docker run < image >
-	- `docker run -it < image-name >`
-	- `docker run -it -p host_port:container_port < image-name >`
-	- `docker run -d < image-name >`: run the container in background
-	- `docker run -d < image-name > sleep 1d`
-	- `docker run -dit < image-name >`
-- `docker rm $(docker ps -qa)`: remove all the containers that by the container_id
-- `docker container stop < two first numbers docker-id >`
-- `docker container ls -a`: Shows the inactive containers
-- `docker container rm $(docker container ls -aq) -f`
-- `docker logs < container >`
-- `docker port web` -  Shows all the existing port mapping
-- `docker service`
-	- `docker service create -d --name <name> --replicas 2 --network <driver> alpine sleep 1`
-	- `docker service ls`
-	- docker service ps <service name> 
-
 ## Dockerfile - Containerizing an App
 - Instructions for building images
 - CAPITALIZE Instructions
@@ -178,6 +202,17 @@ In order to keep the persistence untied of the container lifecycle, volumes come
 - `RUN` = Execute command and create layer
 - `COPY` = Copy code into image as new layer
 - `ENTRYPOINT` = default app for image/container
+
+### Creating an Image
+```
+  docker image build . -t hellodocker
+```
+`.` in this command is the context for the command `docker image build`. `-t` adds a tag to the image.
+
+```
+docker image build -t hellodocker:2 .
+``` 
+`helloworld:2` is the format that allows to specify the image name and assign a tag/version to it separated by `:`.
 
 ### Getting Dockerfile from Github
 `docker image build -t psweb <link.git>`
@@ -214,12 +249,6 @@ CMD ["--spring.profiles.active=postgres"]
 
 - TODO - PRINT 13
 
-## Containers
-
-## Copy on Write Concept 
-Everytime a container needs to write a change into an existing file. It makes its own copy of the "original" file and writes the changes inside himself.
-- TODO - PRINT 14
- 
 ## Docker-Machine
 `docker-machine env < machine-name >`
 `eval ${docker-machine ev <machine-name}` : insert all the environment of the informed machine-name into the client environment variables.
@@ -227,6 +256,73 @@ Everytime a container needs to write a change into an existing file. It makes it
 ## Docker Compose
 Defining and running multi-container applications
 
+## Docker Commands
+- `docker ps`
+	- `docker ps -a` -  Show all the docker images executed, it is like a history
+	- `docker ps -q` -  Only display numeric IDs (container_id)
+- docker images
+- docker build -t < imagename >  < context>
+	- `docker build -t docker-java .` 
+- docker run < image >
+	- `docker run -it < image-name >`
+	- `docker run -it -p host_port:container_port < image-name >`
+	- `docker run -d < image-name >`: run the container in background
+	- `docker run -d < image-name > sleep 1d`
+	- `docker run -dit < image-name >`
+- `docker rm $(docker ps -qa)`: remove all the containers that by the container_id
+- `docker container stop < two first numbers docker-id >`
+- `docker container ls -a`: Shows the inactive containers
+- `docker container rm $(docker container ls -aq) -f`
+- `docker logs < container >`
+- `docker port web` -  Shows all the existing port mapping
+- `docker service`
+	- `docker service create -d --name <name> --replicas 2 --network <driver> alpine sleep 1`
+	- `docker service ls`
+	- docker service ps <service name> 
+- `sudo docker exec –it nginx-test /bin/bash` - Use exec to Run Commands in a Docker Container
+- `CTRL+P ... CTRL+Q` - Leave containe without kill it
+
+### Difference between CMD and ENTRYPOINT
+
+**TL;DR**  `CMD`  will work for most of the cases.
+
+Default entry point for a container is  `/bin/sh`, the default shell.
+
+Running a container as  `docker container run -it ubuntu`  uses that command and starts the default shell. The output is shown as:
+
+> docker container run -it ubuntu
+root@88976ddee107:/#
+
+`ENTRYPOINT`  allows to override the entry point to some other command, and even customize it. For example, a container can be started as:
+
+> docker container run -it --entrypoint=/bin/cat ubuntu /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+. . .
+
+This command overrides the entry point to the container to  `/bin/cat`. The argument(s) passed to the CLI are used by the entry point.
+
+### Difference between ADD and COPY
+
+**TL;DR**  `COPY`  will work for most of the cases.
+
+`ADD`  has all capabilities of  `COPY`  and has the following additional features:
+
+1.  Allows tar file auto-extraction in the image, for example,  `ADD app.tar.gz /opt/var/myapp`.
+    
+2.  Allows files to be downloaded from a remote URL. However, the downloaded files will become part of the image. This causes the image size to bloat. So its recommended to use  `curl`  or  `wget`  to download the archive explicitly, extract, and remove the archive.
+
+## Import and export images
+
+Docker images can be saved using  `image save`  command to a  `.tar`  file:
+
+docker image save helloworld > helloworld.tar
+
+These tar files can then be imported using  `load`  command:
+
+docker image load -i helloworld.tar
 
 
 
