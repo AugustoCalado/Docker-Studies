@@ -50,7 +50,7 @@ Github search keyword : `id "com.bmuschko.docker-java-application"`
 3. Use plugins to run 
 
 
-## Docker Image + JAR
+## Docker Image Made up with JAR - [WAY I] App Build Locally (Traditional)
 ```
 # Start with a base image containing Java runtime
 FROM openjdk:8-jdk-alpine
@@ -109,4 +109,65 @@ docker push augustocalado11/spring-boot-websocket-chat-demo:0.0.1-SNAPSHOT
 docker run -p 5000:8080 augustocalado11/spring-boot-websocket-chat-demo:0.0.1-SNAPSHOT
 ```
 
+## Docker Image Made up with JAR - [WAY II] App Build in Container (Performatic Gradle Cache - Using Cache from Host)
+Use a readily available gradle image and build the application. Then build a Docker image with the output artifact (jar)
+
+- [Docker-gradle](https://hub.docker.com/_/gradle/) is a ready to use docker image with gradle 
+- Build the application inside the container
+	- Map 
+- Map a volume in the container in order to retrive the JAR file
+- Create a image with the JAR file
+
+```
+docker volume create --name gradle-cache
+
+docker run --rm -v gradle-cache:/home/gradle/.gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:4.7.0-jdk8-alpine gradle build
+
+docker run --rm \
+  --name gradletest \
+  --mount type=volume,source=gradle-cache,target=/home/gradle/.gradle \
+  --mount type=bind,source="$PWD",target=/home/gradle/project \
+  -w /home/gradle/project \
+  gradle:6.6.1-jdk8 gradle build
+
+ls -ltrh ./build/libs
+```
+
+## Docker Image Made up with JAR - [WAY III] (Multi-stage approach)
+
+There is no way to mount a volume at the image build time. But it is possible to introduce new stage that will download all dependencies and will be cached as Docker image layer.
+
+As a best practice, we would like to download the dependencies first before building the code. This will speed up the subsequent build flow, since the layer is already cached. It gets tricky to achieve this with Gradle. I have explained this in detail below.
+
+```
+FROM gradle:5.6.4-jdk11 as cache
+RUN mkdir -p /home/gradle/cache_home
+ENV GRADLE_USER_HOME /home/gradle/cache_home
+COPY build.gradle /home/gradle/java-code/
+WORKDIR /home/gradle/java-code
+RUN gradle clean build -i --stacktrace
+
+FROM gradle:5.6.4-jdk11 as builder
+COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle
+COPY . /usr/src/java-code/
+WORKDIR /usr/src/java-code
+RUN gradle bootJar -i --stacktrace
+
+FROM openjdk:11-jre-slim
+EXPOSE 8080
+USER root
+WORKDIR /usr/src/java-app
+COPY --from=builder /usr/src/java-code/build/libs/*.jar ./app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+- The stage `cache` will be rebuilt only when `build.gradle` is changed.
+- n the `builder` stage Gradle cache is copied to avoid downloading the dependencies again: `COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle`.
+
 ## Automating the Docker Image Creation and Publishing Using
+
+## Jib - Containerize your Gradle Java project
+[Jib GitHub](https://github.com/GoogleContainerTools/jib/tree/master/jib-gradle-plugin#quickstart)
+
+## References
+- [Slow gradle build in Docker. Caching gradle build](https://stackoverflow.com/questions/58593661/slow-gradle-build-in-docker-caching-gradle-build)
