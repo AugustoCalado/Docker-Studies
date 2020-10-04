@@ -161,7 +161,7 @@ $ docker run -d \
   nginx:latest
 
 ```
-`source="$(pwd)"/target` will get the target file in the path (pwd), and start a volume inside it. actually it will be the volume, right?
+The `source="$(pwd)"/target` will get the target file in the path (pwd), and start a volume inside it. actually it will be the volume, right? **PS:** Note that the type of this mount is **bind**!!!
 
 Use  `docker inspect devtest`  to verify that the bind mount was created correctly. Look for the  `Mounts`  section:
 
@@ -314,6 +314,103 @@ This command overrides the entry point to the container to  `/bin/cat`. The argu
     
 2.  Allows files to be downloaded from a remote URL. However, the downloaded files will become part of the image. This causes the image size to bloat. So its recommended to use  `curl`  or  `wget`  to download the archive explicitly, extract, and remove the archive.
 
+### Docker ARG and ENV
+-   **ARG**  is only available during the build of a Docker image (RUN etc), not after the image is created and containers are started from it (ENTRYPOINT, CMD). You can use ARG values to set ENV values to  [work around] that.
+-   **ENV**  values are available to containers, but also RUN-style commands during the Docker build starting with the line where they are introduced.
+
+#### ARG
+```
+ARG some_variable_name
+# or with a hard-coded default:
+#ARG some_variable_name=default_value
+
+RUN echo "Oh dang look at that $some_variable_name"
+# you could also use braces - ${some_variable_name}
+
+```
+
+[relevant docs](https://docs.docker.com/engine/reference/builder/#arg)
+
+When building a Docker image from the commandline, you can set  **ARG**  values using  _–build-arg_:
+
+```
+$ docker build --build-arg some_variable_name=a_value
+
+```
+
+**OUTPUT**
+
+```
+Oh dang look at that a_value
+
+```
+
+**Docker compose* - Declaring ARG
+
+```
+version: '3'
+
+services:
+  somename:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        some_variable_name: a_value
+```
+
+#### ENV
+How to set ENV values? It is possible do it when starting the containers, but also there is the possibility to provide default ENV values directly in theDockerfile by hard-coding them. 
+
+When building an image, the only thing that can be provided as parameter are ARG values. Is no allowed provide values for ENV variables directly. However, both ARG and ENV can work together. Use ARG to set the default values of ENV vars.
+
+```
+# expect a build-time variable
+ARG A_VARIABLE
+# use the value to set the ENV var default
+ENV an_env_var=$A_VARIABLE
+```
+**Ways to provide values for ENV variables After Image Built**
+
+1. Provide values one by one
+
+	From the commandline, use the -e flag:
+
+	```
+	$ docker run -e "env_var_name=another_value" alpine env
+	```
+
+	docker-compose.yml file:
+
+	```
+	version: '3'
+
+	services:
+	  plex:
+	    image: linuxserver/plex
+	      environment:
+	        - env_var_name=another_value
+	```
+2.  Pass environment variable values from your host
+	Don’t provide a value, but just name the variable. This will make Docker access the current value in the host environment and pass it on to the container.
+
+	```
+	$ docker run -e env_var_name alpine env
+
+	```
+
+	docker-compose.yml file:
+
+	```
+	version: '3'
+
+	services:
+	  plex:
+	    image: linuxserver/plex
+	      environment:
+	        - env_var_name
+	```
+
 ## Import and export images
 
 Docker images can be saved using  `image save`  command to a  `.tar`  file:
@@ -324,5 +421,7 @@ These tar files can then be imported using  `load`  command:
 
 docker image load -i helloworld.tar
 
+## References
+- [Docker ARG, ENV and .env - a Complete Guide](https://vsupalov.com/docker-arg-env-variable-guide/#setting-arg-values)
 
 
