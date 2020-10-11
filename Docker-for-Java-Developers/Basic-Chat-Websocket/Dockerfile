@@ -1,21 +1,19 @@
-# Start with a base image containing Java runtime
-FROM openjdk:8-jdk-alpine
-
-# Add Maintainer Info
-MAINTAINER Rajeev Kumar Singh <augusto.calado11@gmail.com>
-
-# Add a volume pointing to /tmp
-VOLUME /tmp
-
-# Make port 8080 available to the world outside this container
-EXPOSE 8080
-
-# The application's jar file
-ARG JAR_FILE=libs/websocket-demo*.jar
-
-# Add the application's jar to the container
-ADD ${JAR_FILE} websocket-demo.jar
-
-# Run the jar file 
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/websocket-demo.jar"]
-
+FROM gradle:6.6.1-jdk8 as cache  
+RUN mkdir -p /home/gradle/cache_home  
+ENV GRADLE_USER_HOME /home/gradle/cache_home  
+COPY build.gradle /home/gradle/java-code/  
+WORKDIR /home/gradle/java-code  
+RUN gradle clean build -i --stacktrace  
+  
+FROM gradle:6.6.1-jdk8 as builder  
+COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle  
+COPY . /usr/src/java-code/  
+WORKDIR /usr/src/java-code  
+RUN gradle --no-daemon build --stacktrace  
+  
+FROM openjdk:8-jdk-alpine  
+EXPOSE 8080  
+USER root  
+WORKDIR /usr/src/java-app  
+COPY --from=builder /usr/src/java-code/build/libs/*.jar ./websocket-demo.jar  
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","websocket-demo.jar"]
