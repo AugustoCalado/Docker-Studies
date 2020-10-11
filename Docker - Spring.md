@@ -6,9 +6,9 @@
 
 - [ ] [How to create a custom Docker image with JDK8, Maven and Gradle](https://medium.com/@migueldoctor/how-to-create-a-custom-docker-image-with-jdk8-maven-and-gradle-ddc90f41cee4)
 
-- [ ] [Automating Docker Builds With Gradle](https://tomgregory.com/automating-docker-builds-with-gradle/) [NEXT]
+- [ ] [Automating Docker Builds With Gradle](https://tomgregory.com/automating-docker-builds-with-gradle/) 
 
-- [ ] [Simple automate build using Docker and Gradle for Java Spring Boot project](https://medium.com/@engleangs/simple-automate-build-using-docker-and-gradle-for-java-spring-boot-project-70d79e65b4e6)
+- [ ] [Simple automate build using Docker and Gradle for Java Spring Boot project](https://medium.com/@engleangs/simple-automate-build-using-docker-and-gradle-for-java-spring-boot-project-70d79e65b4e6)[NEXT]
 	- [ ] [Access Private Repositories from Your Dockerfile Without Leaving Behind Your SSH Keys](https://vsupalov.com/build-docker-image-clone-private-repo-ssh-key/)
 
 - [X] [Docker for Spring boot | Gradle | Java micro service](https://medium.com/@sairamkrish/docker-for-spring-boot-gradle-java-micro-service-done-the-right-way-2f46231dbc06)
@@ -192,7 +192,10 @@ ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","websocket-d
 [Jib GitHub](https://github.com/GoogleContainerTools/jib/tree/master/jib-gradle-plugin#quickstart)
 
 ## Debugging Java App Running in Docker Container
+https://stackoverflow.com/questions/57395597/intellij-debug-java-application-in-docker
 
 ## References
 - [Slow gradle build in Docker. Caching gradle build](https://stackoverflow.com/questions/58593661/slow-gradle-build-in-docker-caching-gradle-build)
 - [Intro Guide to Dockerfile Best Practices](https://www.docker.com/blog/intro-guide-to-dockerfile-best-practices/)
+- https://solidstudio.io/blog/debugging-java-applications-running-on-docker.html
+- https://medium.com/swlh/remote-debugging-a-java-application-running-in-docker-container-with-intellij-idea-efe54cd77f02
