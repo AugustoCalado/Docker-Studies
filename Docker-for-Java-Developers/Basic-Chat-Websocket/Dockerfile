@@ -11,7 +11,7 @@ VOLUME /tmp
 EXPOSE 8080
 
 # The application's jar file
-ARG JAR_FILE=build/libs/websocket-demo*.jar
+ARG JAR_FILE=libs/websocket-demo*.jar
 
 # Add the application's jar to the container
 ADD ${JAR_FILE} websocket-demo.jar
