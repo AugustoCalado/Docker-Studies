@@ -1,20 +1,19 @@
-Github search keyword : `id "com.bmuschko.docker-java-application"`
-
 ## TODO
 - Find tutorial CI/CD -> Commit Github repo executes several tests (unit and integration test) and update docker image if everything goes well
 
 ## Tutorials
 - [X] [Dockerizing your Spring Boot applications](https://www.callicoder.com/spring-boot-docker-example/)
 
-- [How to create a custom Docker image with JDK8, Maven and Gradle](https://medium.com/@migueldoctor/how-to-create-a-custom-docker-image-with-jdk8-maven-and-gradle-ddc90f41cee4)
+- [ ] [How to create a custom Docker image with JDK8, Maven and Gradle](https://medium.com/@migueldoctor/how-to-create-a-custom-docker-image-with-jdk8-maven-and-gradle-ddc90f41cee4)
 
-- [Automating Docker Builds With Gradle](https://tomgregory.com/automating-docker-builds-with-gradle/) [NEXT]
+- [ ] [Automating Docker Builds With Gradle](https://tomgregory.com/automating-docker-builds-with-gradle/) 
 
-- [Simple automate build using Docker and Gradle for Java Spring Boot project](https://medium.com/@engleangs/simple-automate-build-using-docker-and-gradle-for-java-spring-boot-project-70d79e65b4e6)
+- [ ] [Simple automate build using Docker and Gradle for Java Spring Boot project](https://medium.com/@engleangs/simple-automate-build-using-docker-and-gradle-for-java-spring-boot-project-70d79e65b4e6)[NEXT]
+	- [ ] [Access Private Repositories from Your Dockerfile Without Leaving Behind Your SSH Keys](https://vsupalov.com/build-docker-image-clone-private-repo-ssh-key/)
 
-- [ Docker for Spring boot | Gradle | Java micro service](https://medium.com/@sairamkrish/docker-for-spring-boot-gradle-java-micro-service-done-the-right-way-2f46231dbc06)
+- [X] [Docker for Spring boot | Gradle | Java micro service](https://medium.com/@sairamkrish/docker-for-spring-boot-gradle-java-micro-service-done-the-right-way-2f46231dbc06)
 
-- [Spring Boot in a Container](https://github.com/spring-guides/top-spring-boot-docker#a-better-dockerfile)
+- [ ] [Spring Boot in a Container](https://github.com/spring-guides/top-spring-boot-docker#a-better-dockerfile)
 
 --- 
 
@@ -110,11 +109,10 @@ docker run -p 5000:8080 augustocalado11/spring-boot-websocket-chat-demo:0.0.1-SN
 ```
 
 ## Docker Image Made up with JAR - [WAY II] App Build in Container (Performatic Gradle Cache - Using Cache from Host)
-Use a readily available gradle image and build the application. Then build a Docker image with the output artifact (jar)
+Use a readily available gradle image and build the application. Then build a Docker image with the output artifact (jar).
 
 - [Docker-gradle](https://hub.docker.com/_/gradle/) is a ready to use docker image with gradle 
 - Build the application inside the container
-	- Map 
 - Map a volume in the container in order to retrive the JAR file
 - Create a image with the JAR file
 
@@ -133,41 +131,71 @@ docker run --rm \
 ls -ltrh ./build/libs
 ```
 
+**Alternative version using `v`**
+```
+docker volume create --name gradle-cache
+
+docker run --rm -v gradle-cache:/home/gradle/.gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:4.7.0-jdk8-alpine gradle build
+
+```
+
 ## Docker Image Made up with JAR - [WAY III] (Multi-stage approach)
 
 There is no way to mount a volume at the image build time. But it is possible to introduce new stage that will download all dependencies and will be cached as Docker image layer.
 
 As a best practice, we would like to download the dependencies first before building the code. This will speed up the subsequent build flow, since the layer is already cached. It gets tricky to achieve this with Gradle. I have explained this in detail below.
 
+### Gradle Multi-stage Build
 ```
-FROM gradle:5.6.4-jdk11 as cache
-RUN mkdir -p /home/gradle/cache_home
-ENV GRADLE_USER_HOME /home/gradle/cache_home
-COPY build.gradle /home/gradle/java-code/
-WORKDIR /home/gradle/java-code
-RUN gradle clean build -i --stacktrace
-
-FROM gradle:5.6.4-jdk11 as builder
-COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle
-COPY . /usr/src/java-code/
-WORKDIR /usr/src/java-code
-RUN gradle bootJar -i --stacktrace
-
-FROM openjdk:11-jre-slim
-EXPOSE 8080
-USER root
-WORKDIR /usr/src/java-app
-COPY --from=builder /usr/src/java-code/build/libs/*.jar ./app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+FROM gradle:6.6.1-jdk8 as cache  
+RUN mkdir -p /home/gradle/cache_home  
+ENV GRADLE_USER_HOME /home/gradle/cache_home  
+COPY build.gradle /home/gradle/java-code/  
+WORKDIR /home/gradle/java-code  
+RUN gradle clean build -i --stacktrace  
+  
+FROM gradle:6.6.1-jdk8 as builder  
+COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle  
+COPY . /usr/src/java-code/  
+WORKDIR /usr/src/java-code  
+RUN gradle --no-daemon build --stacktrace  
+  
+FROM openjdk:8-jdk-alpine  
+EXPOSE 8080  
+USER root  
+WORKDIR /usr/src/java-app  
+COPY --from=builder /usr/src/java-code/build/libs/*.jar ./websocket-demo.jar  
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","websocket-demo.jar"]
 ```
 
 - The stage `cache` will be rebuilt only when `build.gradle` is changed.
 - n the `builder` stage Gradle cache is copied to avoid downloading the dependencies again: `COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle`.
+- The **GRADLE_USER_HOME** environment variable isn't set by default. You'll need to explicitly set it, and then copy over the downloaded dependencies in the next stage.
 
-## Automating the Docker Image Creation and Publishing Using
+### Maven Multi-stage Build
+```
+FROM maven:3.6-jdk-8-alpine AS builder
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn -e -B package
+
+FROM openjdk:8-jdk-alpine  
+EXPOSE 8080  
+COPY --from=builder /app/target/*.jar ./websocket-demo.jar
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","websocket-demo.jar"]
+```
+
+## Automating the Docker Image Creation and Publishing Using Gradle
 
 ## Jib - Containerize your Gradle Java project
 [Jib GitHub](https://github.com/GoogleContainerTools/jib/tree/master/jib-gradle-plugin#quickstart)
 
+## Debugging Java App Running in Docker Container
+https://stackoverflow.com/questions/57395597/intellij-debug-java-application-in-docker
+
 ## References
 - [Slow gradle build in Docker. Caching gradle build](https://stackoverflow.com/questions/58593661/slow-gradle-build-in-docker-caching-gradle-build)
+- [Intro Guide to Dockerfile Best Practices](https://www.docker.com/blog/intro-guide-to-dockerfile-best-practices/)
+- https://solidstudio.io/blog/debugging-java-applications-running-on-docker.html
+- https://medium.com/swlh/remote-debugging-a-java-application-running-in-docker-container-with-intellij-idea-efe54cd77f02

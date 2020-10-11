@@ -181,6 +181,8 @@ Use  `docker inspect devtest`  to verify that the bind mount was created correct
 
 This shows that the mount is a  `bind`  mount, it shows the correct source and destination, it shows that the mount is read-write, and that the propagation is set to  `rprivate`.
 
+![enter image description here](types-of-mounts-bind.png)
+
 ## Working with Secrets
  - `docker secret create <name-secret> <path-for-the-secret>`: creating a new secret
 	 - By doing this command a new secret is going to be created and stored in the docker swarm raft
@@ -266,12 +268,13 @@ Defining and running multi-container applications
 - docker run < image >
 	- `docker run -it < image-name >`
 	- `docker run -it -p host_port:container_port < image-name >`
-	- `docker run -d < image-name >`: run the container in background
+	- `docker run -d < image-name >` - run the container in background
 	- `docker run -d < image-name > sleep 1d`
 	- `docker run -dit < image-name >`
-- `docker rm $(docker ps -qa)`: remove all the containers that by the container_id
+	- `docker run --rm` - removes container afterwards
+- `docker rm $(docker ps -qa)` - remove all the containers that by the container_id
 - `docker container stop < two first numbers docker-id >`
-- `docker container ls -a`: Shows the inactive containers
+- `docker container ls -a` - Shows the inactive containers
 - `docker container rm $(docker container ls -aq) -f`
 - `docker logs < container >`
 - `docker port web` -  Shows all the existing port mapping
@@ -281,9 +284,9 @@ Defining and running multi-container applications
 	- docker service ps <service name> 
 - `sudo docker exec –it nginx-test /bin/bash` - Use exec to Run Commands in a Docker Container
 - `CTRL+P ... CTRL+Q` - Leave containe without kill it
+- `docker system prune` - Clean up disk spaces
 
 ### Difference between CMD and ENTRYPOINT
-
 **TL;DR**  `CMD`  will work for most of the cases.
 
 Default entry point for a container is  `/bin/sh`, the default shell.
@@ -305,7 +308,6 @@ sys:x:3:3:sys:/dev:/usr/sbin/nologin
 This command overrides the entry point to the container to  `/bin/cat`. The argument(s) passed to the CLI are used by the entry point.
 
 ### Difference between ADD and COPY
-
 **TL;DR**  `COPY`  will work for most of the cases.
 
 `ADD`  has all capabilities of  `COPY`  and has the following additional features:
@@ -326,27 +328,21 @@ ARG some_variable_name
 
 RUN echo "Oh dang look at that $some_variable_name"
 # you could also use braces - ${some_variable_name}
-
 ```
-
 [relevant docs](https://docs.docker.com/engine/reference/builder/#arg)
 
 When building a Docker image from the commandline, you can set  **ARG**  values using  _–build-arg_:
 
 ```
 $ docker build --build-arg some_variable_name=a_value
-
 ```
 
 **OUTPUT**
-
 ```
 Oh dang look at that a_value
-
 ```
 
-**Docker compose* - Declaring ARG
-
+**Docker compose** - Declaring ARG
 ```
 version: '3'
 
@@ -370,18 +366,16 @@ ARG A_VARIABLE
 # use the value to set the ENV var default
 ENV an_env_var=$A_VARIABLE
 ```
+
 **Ways to provide values for ENV variables After Image Built**
 
 1. Provide values one by one
-
 	From the commandline, use the -e flag:
-
 	```
 	$ docker run -e "env_var_name=another_value" alpine env
 	```
 
 	docker-compose.yml file:
-
 	```
 	version: '3'
 
@@ -391,16 +385,15 @@ ENV an_env_var=$A_VARIABLE
 	      environment:
 	        - env_var_name=another_value
 	```
+	
 2.  Pass environment variable values from your host
 	Don’t provide a value, but just name the variable. This will make Docker access the current value in the host environment and pass it on to the container.
 
 	```
 	$ docker run -e env_var_name alpine env
-
 	```
 
 	docker-compose.yml file:
-
 	```
 	version: '3'
 
@@ -423,5 +416,6 @@ docker image load -i helloworld.tar
 
 ## References
 - [Docker ARG, ENV and .env - a Complete Guide](https://vsupalov.com/docker-arg-env-variable-guide/#setting-arg-values)
+- [How To SSH Into A Running Docker Container And Run Commands](https://phoenixnap.com/kb/how-to-ssh-into-docker-container)
 
 
