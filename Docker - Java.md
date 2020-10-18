@@ -27,6 +27,15 @@
 
 - [Spring Boot Docker Integration With Rabbitmq and Mysql](https://www.codeprimers.com/spring-boot-docker-integration-with-rabbitmq-and-mysql/)
 
+
+### Container access some service runnig  locally 
+
+- [how-to-connect-locally-hosted-mysql-database-with-the-docker-container](https://stackoverflow.com/questions/44543842/how-to-connect-locally-hosted-mysql-database-with-the-docker-container)
+
+- [access-host-database-from-a-docker-container](https://stackoverflow.com/questions/28056522/access-host-database-from-a-docker-container)
+
+- [allow-docker-container-to-connect-to-a-local-host-postgres-database](https://stackoverflow.com/questions/31249112/allow-docker-container-to-connect-to-a-local-host-postgres-database)
+
 ## Gradle
 
 - https://github.com/whitingjr/echo-api/blob/b73cfd308db5dc61131381a6a71a537397e92dc9/build.gradle
@@ -136,7 +145,6 @@ ls -ltrh ./build/libs
 docker volume create --name gradle-cache
 
 docker run --rm -v gradle-cache:/home/gradle/.gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:4.7.0-jdk8-alpine gradle build
-
 ```
 
 ## Docker Image Made up with JAR - [WAY III] (Multi-stage approach)
