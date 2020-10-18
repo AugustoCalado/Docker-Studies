@@ -16,4 +16,4 @@ EXPOSE 8080
 USER root  
 WORKDIR /usr/src/java-app  
 COPY --from=builder /usr/src/java-code/build/libs/*.jar ./websocket-demo.jar  
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","websocket-demo.jar"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","-agentlib:jdwp=transport=dt_socket,server=y,address=5000,suspend=n","websocket-demo.jar"]
