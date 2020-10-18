@@ -1,5 +1,4 @@
 # Docker Compose
-
 Compose is a tool for defining and running multi-container Docker applications. With a file config (YAML), is possible to configure several application's servers. Then, with a single command, all the services from the configuration file are created and starter .
 
 Docker Compose directives are written in YAML format and are hosted in a file commonly named  `docker-compose.yml`. Common Docker Compose commands include:
@@ -8,6 +7,9 @@ Docker Compose directives are written in YAML format and are hosted in a file co
 -   `docker-compose down --volumes`  removes all the containers built by your compose script as well as any storage volumes.   
 -   `docker-compose ps`  lists all currently active containers.
 -   `docker-compose stop`  halts the running of the currently active containers.
+
+## Useful Links
+- [Docker Compose Command-line Reference](https://docs.docker.com/compose/reference/overview/)
 
 ## Dependences Between Containers vs Docker Compose
 Since there are several containers at play, there should be an order in which they start up. Docker Compose addresses this with the `depends_on` directive. The directive informs Docker Compose which containers should start running before others can be executed.
@@ -79,7 +81,7 @@ services:
         - redis
       networks:
         - codewithdan-network
-        - 
+
 networks:
 	codewithdan-network:
 	  driver: bridge
@@ -102,7 +104,53 @@ networks:
 	NODE_ENV=development
 	```
 
-### Key Commands
+## Spring and Docker Compose
+[environment variables take precedence](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html) over the .properties files. Then the follow scenario will override the properties in the application-xyz.properties file
+
+### application-xyz.properties
+```properties
+## Server Properties  
+server.port=8080  
+server.compression.enabled=true  
+  
+## Spring DATASOURCE (DataSourceAutoConfiguration & DataSourceProperties)  
+spring.datasource.url=jdbc:mysql://localhost:8051/polls?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false  
+spring.datasource.username=defaultUser  
+spring.datasource.password=default
+```
+### docker-compose.yml
+```yml
+services:
+  # App backend service
+  app-server:
+    # Configuration for building the docker image for the backend service
+    build:
+      context: polling-app-server # Use an image built from the specified dockerfile in the `polling-app-server` directory.
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8082" # Forward the exposed port 8082 on the container to port 8080 on the host machine
+    restart: always
+    depends_on: 
+      - db # This service depends on mysql. Start that first.
+    environment: # Pass environment variables to the service ->  environment variables take precedence over the .properties files inside spring app.
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/polls?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root    
+      SERVER_PORT: 8082
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+      - frontend
+```
+
+The property `spring.datasource.username` tera o valor da environment variable defined in the docker-compose.yml.
+
+(Spring - Common Application Properties)[https://docs.spring.io/spring-boot/docs/2.0.x/reference/html/common-application-properties.html]
+
+### What I have experienced about Docker and Spring
+- Connect app in container using the port mapped in the host machine.
+	Well, I initially thought that we should use the mapped port on the host machine to connect my spring application to the database defined in another container. However, it turned out that we only need to use the exposed door inside the container. Why that? Well, the answer is 'network', communication between containers can (should) be done over networks.
+
+## Key Commands
 - `docker-compose build`
 	- `docker-compose build <name-of-a-service>` - only build/rebuild one service
 - `docker-compose up` - create and start the containers
@@ -118,3 +166,5 @@ networks:
 
 ## References
 https://docs.docker.com/compose/reference/
+https://stackoverflow.com/questions/46057625/externalising-spring-boot-properties-when-deploying-to-docker/46058046
+
