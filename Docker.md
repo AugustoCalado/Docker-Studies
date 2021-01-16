@@ -1,11 +1,10 @@
 
+# Docker
 ## To Study
 https://github.com/docker/labs/tree/master/beginner
-https://github.com/docker/labs/blob/master/developer-tools/README.md
-	- https://github.com/docker/labs/tree/master/developer-tools/java-debugging
-	- https://github.com/docker/labs/tree/master/developer-tools/java
-
-https://github.com/docker/labs/tree/master/12factor
+- [ ] [Developer Tools Tutorials](https://github.com/docker/labs/blob/master/developer-tools/README.md)
+	- [ ] [Tutorial Java Debugging](https://github.com/docker/labs/tree/master/developer-tools/java-debugging)
+	- [ ] [Docker for Java Developers](https://github.com/docker/labs/tree/master/developer-tools/java)
 
 ## Basic Ideas
 > **Container**
@@ -255,8 +254,13 @@ CMD ["--spring.profiles.active=postgres"]
 `docker-machine env < machine-name >`
 `eval ${docker-machine ev <machine-name}` : insert all the environment of the informed machine-name into the client environment variables.
 
-## Docker Compose
-Defining and running multi-container applications
+## The `.dockerignore` File
+```
+.k8s
+.vscode
+node_modules
+npm-debug.log
+```
 
 ## Docker Commands
 - `docker ps`
