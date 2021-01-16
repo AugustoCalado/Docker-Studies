@@ -11,8 +11,7 @@ https://github.com/docker/labs/tree/master/beginner
 > noun: Isolated area of an OS with resource usage limits applied
 
 > Docker is a platform for developers and sysadmins to build, ship, and run applications. Docker lets you quickly assemble applications from components and eliminates the friction that can come when shipping code. Docker lets you test and deploy your code into production as fast as possible.
-
-— docs.docker.com/
+> — docs.docker.com/
 
 An application typically requires specific versions for the operating system, application server, JDK, database server, may require  configuration files, and similarly multiple other dependencies. Also, The application may need binding to specific ports and certain amount of memory. The components and configuration together required to run your application is what is referred to as **application operating system**.
 
@@ -297,17 +296,20 @@ Default entry point for a container is  `/bin/sh`, the default shell.
 
 Running a container as  `docker container run -it ubuntu`  uses that command and starts the default shell. The output is shown as:
 
+```
 > docker container run -it ubuntu
 root@88976ddee107:/#
+```
 
 `ENTRYPOINT`  allows to override the entry point to some other command, and even customize it. For example, a container can be started as:
-
+```
 > docker container run -it --entrypoint=/bin/cat ubuntu /etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 bin:x:2:2:bin:/bin:/usr/sbin/nologin
 sys:x:3:3:sys:/dev:/usr/sbin/nologin
 . . .
+```
 
 This command overrides the entry point to the container to  `/bin/cat`. The argument(s) passed to the CLI are used by the entry point.
 
